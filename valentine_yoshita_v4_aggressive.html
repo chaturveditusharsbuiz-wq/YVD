@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Will you be my Valentine?</title>
+  <style>
+    :root{
+      --bg1:#ffd6e6;
+      --bg2:#ffe3ef;
+      --card:#f7f7f7;
+      --accent:#ff3b7a;
+      --accent2:#ff1f66;
+      --muted:#6b7280;
+      --shadow: 0 18px 55px rgba(0,0,0,.14);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(1200px 800px at 18% 12%, rgba(255, 192, 215, .75) 0%, transparent 60%),
+        radial-gradient(1100px 700px at 82% 18%, rgba(255, 210, 236, .75) 0%, transparent 55%),
+        radial-gradient(1000px 700px at 55% 86%, rgba(255, 198, 221, .65) 0%, transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+      padding: 28px 16px;
+    }
+
+    .card{
+      width:min(92vw, 820px);
+      background: var(--card);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,.06);
+      padding: 28px 18px 22px;
+      text-align:center;
+      position:relative;
+      z-index:1;
+      overflow:hidden; /* keep NO inside the white box */
+    }
+
+    /* floating hearts */
+    .heart{
+      position:fixed;
+      width:18px;height:18px;
+      background: var(--accent);
+      transform: rotate(45deg);
+      opacity:.12;
+      animation: floatUp linear infinite;
+      filter: blur(.2px);
+      z-index:0;
+    }
+    .heart:before,.heart:after{
+      content:"";
+      position:absolute;
+      width:18px;height:18px;
+      background: var(--accent);
+      border-radius:50%;
+    }
+    .heart:before{ left:-9px; top:0; }
+    .heart:after{ left:0; top:-9px; }
+    @keyframes floatUp{
+      0%{ transform: translateY(30px) rotate(45deg); opacity:0; }
+      10%{ opacity:.14; }
+      100%{ transform: translateY(-120vh) rotate(45deg); opacity:0; }
+    }
+
+    /* cat icon */
+    .catWrap{
+      width: 160px;
+      height: 120px;
+      margin: 6px auto 4px;
+      display:grid;
+      place-items:center;
+      position:relative;
+      user-select:none;
+      pointer-events:none;
+    }
+    .cat{
+      width: 92px;
+      height: 92px;
+      background: #e8b477;
+      border-radius: 999px;
+      position:relative;
+      box-shadow: 0 10px 22px rgba(255,59,122,.18);
+    }
+    .ear{
+      position:absolute;
+      width: 0; height: 0;
+      border-left: 22px solid transparent;
+      border-right: 22px solid transparent;
+      border-bottom: 34px solid #e8b477;
+      top: -22px;
+    }
+    .ear.left{ left: -6px; transform: rotate(-12deg); }
+    .ear.right{ right: -6px; transform: rotate(12deg); }
+    .eye{
+      position:absolute;
+      width: 8px; height: 8px;
+      background:#111;
+      border-radius:999px;
+      top: 40px;
+    }
+    .eye.left{ left: 30px; }
+    .eye.right{ right: 30px; }
+    .nose{
+      position:absolute;
+      top: 52px; left:50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 10px solid #f47a98;
+    }
+    .heartIcon{
+      position:absolute;
+      right: 18px;
+      top: 8px;
+      font-size: 26px;
+      transform: rotate(8deg);
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.08));
+    }
+
+    h1{
+      margin: 6px 0 10px;
+      font-size: clamp(26px, 4.4vw, 40px);
+      letter-spacing: -.02em;
+      line-height:1.15;
+      font-weight: 900;
+      text-transform: lowercase;
+    }
+
+    /* Button row: NO left, YES right */
+    .btnRow{
+      margin: 26px auto 12px;
+      width: min(620px, 96%);
+      height: 120px;
+      position:relative;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap: 20px;
+    }
+
+    .btn{
+      border:0;
+      border-radius: 999px;
+      font-weight: 900;
+      cursor:pointer;
+      touch-action: manipulation;
+      user-select:none;
+      height: 78px;
+      min-width: 190px;
+      padding: 0 26px;
+      font-size: 30px;
+    }
+
+    #yesBtn{
+      position:relative;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      color:#fff;
+      box-shadow: 0 18px 36px rgba(255,31,102,.28);
+      transition: transform .14s ease, filter .14s ease;
+      z-index:1;
+    }
+    #yesBtn:hover{ filter: brightness(1.03); transform: scale(1.02); }
+
+    /* NO moves anywhere inside the white box */
+    #noBtn{
+      position:absolute; /* inside .btnRow, but constrained by .card overflow */
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      background:#efefef;
+      color:#111;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 12px 26px rgba(0,0,0,.12);
+      will-change: transform;
+      z-index: 2;
+    }
+
+    .caption{ margin: 8px 0 2px; color: var(--muted); font-size: 14px; }
+    .tiny{ margin-top: 12px; font-size: 12px; color: rgba(31,31,31,.55); }
+
+    /* Final screen (no buttons) */
+    .final{ display:none; text-align:center; padding: 24px 16px 10px; }
+    .final.show{ display:block; }
+
+    .yay{ font-weight: 1000; letter-spacing: .02em; font-size: clamp(44px, 5vw, 68px); margin: 2px 0 10px; }
+    .best{ font-size: 18px; opacity:.9; margin: 0 0 14px; }
+    .gifBox{
+      width: min(520px, 92%);
+      margin: 0 auto 12px;
+      border-radius: 18px;
+      overflow:hidden;
+      background: rgba(255,255,255,.6);
+      border: 1px solid rgba(0,0,0,.06);
+      box-shadow: 0 16px 40px rgba(0,0,0,.18);
+      display:grid;
+      place-items:center;
+    }
+    .gifBox img{ width:100%; height:auto; display:block; }
+    .love{ margin-top: 10px; font-size: 18px; }
+
+    @media (max-width: 420px){
+      .btn{ min-width: 150px; font-size: 26px; height: 72px; }
+      .btnRow{ height: 130px; gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="card" role="main">
+    <div class="catWrap" aria-hidden="true">
+      <div class="heartIcon">💗</div>
+      <div class="cat">
+        <div class="ear left"></div>
+        <div class="ear right"></div>
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+        <div class="nose"></div>
+      </div>
+    </div>
+
+    <div id="ask">
+      <h1 id="question">yoshita will you be my valentine?</h1>
+
+      <div class="btnRow" id="arena">
+        <button class="btn" id="noBtn" type="button">No</button>
+        <button class="btn" id="yesBtn" type="button">Yes</button>
+      </div>
+
+      <div class="caption">“No” seems a bit shy 😅</div>
+      <div class="tiny">Tip: try moving your cursor near “No” 😉</div>
+    </div>
+
+    <div class="final" id="final">
+      <div class="yay">💖 YAY!!! 💖</div>
+      <div class="best">Best decision ever 🥰</div>
+      <div class="gifBox">
+        <img src="quby.gif" alt="Cute celebration gif" />
+      </div>
+      <div class="love">I love you ❤️</div>
+    </div>
+  </div>
+
+  <script>
+    // ========= Customize =========
+    const girlfriendName = "Yoshita";
+    // =============================
+
+    const question = document.getElementById("question");
+    const card = document.getElementById("card");
+    const arena = document.getElementById("arena");
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const ask = document.getElementById("ask");
+    const final = document.getElementById("final");
+
+    question.textContent = `${girlfriendName.toLowerCase()} will you be my valentine?`;
+
+    // Background hearts
+    const HEARTS = 18;
+    for (let i=0;i<HEARTS;i++){
+      const h = document.createElement("div");
+      h.className = "heart";
+      const size = 10 + Math.random()*18;
+      h.style.width = size + "px";
+      h.style.height = size + "px";
+      h.style.left = (Math.random()*100) + "vw";
+      h.style.bottom = (-20 - Math.random()*40) + "px";
+      h.style.animationDuration = (6 + Math.random()*8) + "s";
+      h.style.animationDelay = (Math.random()*4) + "s";
+      h.style.opacity = (0.08 + Math.random()*0.12);
+      document.body.appendChild(h);
+    }
+
+    // ===== Aggressive smooth chase/evade =====
+    const state = {
+      x: 0, y: 0,     // current offset in px (relative to arena center)
+      tx: 0, ty: 0,   // target offset
+      w: 0, h: 0,
+      bounds: { minX:0, maxX:0, minY:0, maxY:0 },
+      running: true
+    };
+
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+    function measure(){
+      // We allow NO anywhere inside the WHITE BOX (the .card), not just the row.
+      // But to keep NO near the buttons area visually, we use the arena as reference for offsets,
+      // and compute bounds based on card's inner area.
+      const c = card.getBoundingClientRect();
+      const a = arena.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+
+      state.w = b.width; state.h = b.height;
+
+      // Card inner usable area (padding already inside card; keep extra safe padding)
+      const pad = 14;
+      const minLeft = c.left + pad;
+      const maxLeft = c.right - pad - state.w;
+      const minTop  = c.top + pad;
+      const maxTop  = c.bottom - pad - state.h;
+
+      // We'll store bounds in absolute coords, then convert to offsets from arena center.
+      const arenaCenterX = a.left + a.width/2;
+      const arenaCenterY = a.top + a.height/2;
+
+      state.bounds.minX = minLeft - arenaCenterX;
+      state.bounds.maxX = maxLeft - arenaCenterX;
+      state.bounds.minY = minTop - arenaCenterY;
+      state.bounds.maxY = maxTop - arenaCenterY;
+    }
+
+    function apply(){
+      // translate from arena center (-50%, -50%) plus offsets
+      noBtn.style.transform = `translate3d(calc(-50% + ${state.x}px), calc(-50% + ${state.y}px), 0)`;
+    }
+
+    function pickTargetFarFrom(px, py){
+      // px,py are client coords of cursor
+      const a = arena.getBoundingClientRect();
+      const arenaCenterX = a.left + a.width/2;
+      const arenaCenterY = a.top + a.height/2;
+
+      // cursor position as offsets
+      const cx = px - arenaCenterX;
+      const cy = py - arenaCenterY;
+
+      // choose a random point inside bounds but far from cursor (and far from current) for aggressive feel
+      const FAR = 220; // minimum distance from cursor
+      let best = null;
+      for (let i=0;i<18;i++){
+        const rx = state.bounds.minX + Math.random()*(state.bounds.maxX - state.bounds.minX);
+        const ry = state.bounds.minY + Math.random()*(state.bounds.maxY - state.bounds.minY);
+
+        const dCursor = Math.hypot(rx - cx, ry - cy);
+        if (dCursor < FAR) continue;
+
+        const dCurrent = Math.hypot(rx - state.x, ry - state.y);
+        const score = dCursor + 0.35*dCurrent; // prefer far from cursor + a bit of variety
+        if (!best || score > best.score) best = {x:rx, y:ry, score};
+      }
+      if (!best){
+        // fallback: clamp a big step directly away from cursor
+        const dx = state.x - cx;
+        const dy = state.y - cy;
+        const dist = Math.max(1, Math.hypot(dx, dy));
+        const ux = dx/dist, uy = dy/dist;
+        const step = 260;
+        best = {
+          x: clamp(state.x + ux*step, state.bounds.minX, state.bounds.maxX),
+          y: clamp(state.y + uy*step, state.bounds.minY, state.bounds.maxY),
+          score: 0
+        };
+      }
+      state.tx = best.x;
+      state.ty = best.y;
+    }
+
+    // Smooth spring-like follow to target
+    let vx=0, vy=0;
+    function tick(){
+      if (!state.running) return;
+
+      // spring constants tuned to feel "aggressive" but smooth
+      const stiffness = 0.085;   // higher = faster snap
+      const damping   = 0.78;    // lower = more oscillation
+
+      const ax = (state.tx - state.x) * stiffness;
+      const ay = (state.ty - state.y) * stiffness;
+
+      vx = (vx + ax) * damping;
+      vy = (vy + ay) * damping;
+
+      state.x += vx;
+      state.y += vy;
+
+      // clamp to bounds
+      state.x = clamp(state.x, state.bounds.minX, state.bounds.maxX);
+      state.y = clamp(state.y, state.bounds.minY, state.bounds.maxY);
+
+      apply();
+      requestAnimationFrame(tick);
+    }
+
+    // Trigger: aggressive run when cursor is close OR approaching
+    function onPointerMove(e){
+      if (ask.style.display === "none") return;
+
+      const b = noBtn.getBoundingClientRect();
+      const bx = b.left + b.width/2;
+      const by = b.top + b.height/2;
+
+      const dist = Math.hypot(e.clientX - bx, e.clientY - by);
+
+      const TRIGGER = 180; // bigger trigger radius
+      if (dist < TRIGGER){
+        pickTargetFarFrom(e.clientX, e.clientY);
+      }
+    }
+
+    function onPoke(e){
+      e.preventDefault();
+      if (ask.style.display === "none") return;
+
+      // On mobile taps: pick a new far position using a "fake cursor" near the button
+      const b = noBtn.getBoundingClientRect();
+      pickTargetFarFrom(b.left + b.width/2, b.top + b.height/2);
+    }
+
+    // Prevent accidental click on NO (it should never be clickable)
+    noBtn.addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); });
+
+    window.addEventListener("pointermove", onPointerMove, {passive:true});
+    noBtn.addEventListener("pointerdown", onPoke, {passive:false});
+
+    yesBtn.addEventListener("click", () => {
+      ask.style.display = "none";
+      final.classList.add("show");
+    });
+
+    // init
+    function init(){
+      // Place NO in left-ish start (parallel to YES) before it starts running
+      measure();
+      state.x = clamp(-160, state.bounds.minX, state.bounds.maxX);
+      state.y = clamp(10, state.bounds.minY, state.bounds.maxY);
+      state.tx = state.x; state.ty = state.y;
+      apply();
+      requestAnimationFrame(tick);
+    }
+
+    window.addEventListener("resize", () => {
+      measure();
+      // clamp targets after resize
+      state.x = clamp(state.x, state.bounds.minX, state.bounds.maxX);
+      state.y = clamp(state.y, state.bounds.minY, state.bounds.maxY);
+      state.tx = clamp(state.tx, state.bounds.minX, state.bounds.maxX);
+      state.ty = clamp(state.ty, state.bounds.minY, state.bounds.maxY);
+      apply();
+    });
+
+    init();
+  </script>
+</body>
+</html>
